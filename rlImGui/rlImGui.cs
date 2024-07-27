@@ -251,17 +251,12 @@ public static class rlImGui {
         io.Fonts.SetTexID(new IntPtr(FontTexture.id));
     }
 
-    unsafe internal static sbyte* rImGuiGetClipText(IntPtr userData) {
-        return Raylib.GetClipboardText();
-    }
-
-    unsafe internal static void rlImGuiSetClipText(IntPtr userData, sbyte* text) {
-        Raylib.SetClipboardText(text);
-    }
-
     private unsafe delegate sbyte* GetClipTextCallback(IntPtr userData);
 
     private unsafe delegate void SetClipTextCallback(IntPtr userData, sbyte* text);
+    private unsafe static GetClipTextCallback _getClip = data => Raylib.GetClipboardText();
+    private unsafe static SetClipTextCallback _setClip = (userData, text) => Raylib.SetClipboardText(text);
+    
 
     /// <summary>
     /// End Custom initialization. Not needed if you call Setup. Only needed if you want to add custom setup code.
@@ -288,11 +283,10 @@ public static class rlImGui {
 
         // copy/paste callbacks
         unsafe {
-            GetClipTextCallback getClip = new GetClipTextCallback(rImGuiGetClipText);
-            SetClipTextCallback setClip = new SetClipTextCallback(rlImGuiSetClipText);
 
-            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(setClip);
-            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(getClip);
+
+            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_setClip);
+            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_getClip);
         }
 
         io.ClipboardUserData = IntPtr.Zero;
