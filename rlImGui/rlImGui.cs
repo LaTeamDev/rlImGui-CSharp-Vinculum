@@ -270,7 +270,8 @@ public static class rlImGui {
         var fonts = ImGui.GetIO().Fonts;
         ImGui.GetIO().Fonts.AddFontDefault();
 
-        ImGuiIOPtr io = ImGui.GetIO();
+        var io = ImGui.GetIO();
+        var platfromIo = ImGui.GetPlatformIO();
 
         if (SetupUserFonts != null)
             SetupUserFonts(io);
@@ -283,13 +284,11 @@ public static class rlImGui {
 
         // copy/paste callbacks
         unsafe {
-
-
-            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_setClip);
-            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_getClip);
+            platfromIo.Platform_SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_setClip);
+            platfromIo.Platform_GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_getClip);
         }
 
-        io.ClipboardUserData = IntPtr.Zero;
+        platfromIo.Platform_ClipboardUserData = IntPtr.Zero;
         ReloadFonts();
     }
 
